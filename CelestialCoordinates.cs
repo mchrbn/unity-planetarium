@@ -41,9 +41,12 @@ public static class CelestialCoordinates{
 	/// Source: https://github.com/mourner/suncalc/blob/master/suncalc.js
 	/// </summary>
 	/// <returns>The horizontal coordinatesof the moon</returns>
-	/// <param name="_longitude">User longitude</param>
-	/// <param name="_latitude">User latitude</param>
+	/// <param name="_longitude">User longitude in degree</param>
+	/// <param name="_latitude">User latitude in degree</param>
 	public static Vector3 CalculateHorizontalCoordinatesMoon(double _longitude, double _latitude){
+
+		//Convert the latitude to radians
+		_latitude *= Mathf.Deg2Rad;
 
 		double lw = Mathf.Deg2Rad * _longitude * -1;
 		DateTime epoch = new DateTime(2000, 1, 1, 12, 0, 0);
@@ -86,10 +89,14 @@ public static class CelestialCoordinates{
 	/// Source: http://www.abecedarical.com/javascript/script_planet_orbits.html
 	/// </summary>
 	/// <returns>The altitude azimuth (in degree) as well as the distance of where the star is located</returns>
-	/// <param name="_longitude">User longitude</param>
-	/// <param name="_latitude">User latitude</param> 
+	/// <param name="_longitude">User longitude in degree</param>
+	/// <param name="_latitude">User latitude in degree</param> 
 	/// <param name="_name">The planet's name</param> 
 	public static Vector3 CalculateHorizontalCoordinatesPlanets(double _longitude, double _latitude, string _name){
+
+		//Convert the latitude to radians
+		_latitude *= Mathf.Deg2Rad;
+
 		Vector3 coordinates = new Vector3(0,0,0);
 
 		//1. Days elapsed since J2000 (1st january 2000 at 12:00)
@@ -281,11 +288,14 @@ public static class CelestialCoordinates{
 	/// Take into account user time + date + location
 	/// </summary>
 	/// <returns>The altitude and azimuth (in degree) of where the star is located</returns>
-	/// <param name="_longitude">User longitude</param>
-	/// <param name="_latitude">User latitude</param> 
+	/// <param name="_longitude">User longitude in degree</param>
+	/// <param name="_latitude">User latitude in degree</param> 
 	/// <param name="_ra">Right Ascension (in degree)</param>
 	/// <param name="_dec">Declinaison (in degree)</param> 
 	public static Vector2 CalculateHorizontalCoordinatesStar(double _longitude, double _latitude, float _ra, float _dec){
+
+		//Convert the latitude to radians
+		_latitude *= Mathf.Deg2Rad;
 
 		Vector2 coordinates = new Vector2 (0, 0);
 
