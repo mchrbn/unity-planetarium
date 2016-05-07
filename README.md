@@ -8,7 +8,7 @@ The class was developed for a Unity project so you would have to change few thin
 
 The class returns the Horizontal Coordinates (Azimuth + Altitude) in degrees of a celestial object by taking into account the given location and the current time.
 
-There are three methods:
+There are three methods:   
     1) Getting the moon horizontal coordinates    
     2) Getting the planets (including the Sun) horizontal coordinates    
     3) Getting the stars horizontal coordinates    
