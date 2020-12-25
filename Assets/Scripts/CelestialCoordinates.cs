@@ -1,5 +1,21 @@
-﻿using UnityEngine;
+﻿// Unity Planetarium
+// https://github.com/mchrbn/unity-planetarium-generator
+
+using UnityEngine;
 using System;
+
+public enum PlanetName{
+	SUN,
+	MERCURY,
+	VENUS,
+	MARS,
+	JUPITER,
+	SATURN,
+	URANUS,
+	NEPTUNE,
+	PLUTO,
+	MOON
+}
 
 public static class CelestialCoordinates{
 
@@ -40,17 +56,18 @@ public static class CelestialCoordinates{
 	/// Calculates the horizontal coordinates of the moon
 	/// Source: https://github.com/mourner/suncalc/blob/master/suncalc.js
 	/// </summary>
-	/// <returns>The horizontal coordinatesof the moon</returns>
+	/// <returns>The horizontal coordinates of the moon and its distance from Earth (in AU)</returns>
 	/// <param name="_longitude">User longitude in degree</param>
 	/// <param name="_latitude">User latitude in degree</param>
-	public static Vector3 CalculateHorizontalCoordinatesMoon(double _longitude, double _latitude){
+	/// <param name="_time">The time in UTC</param>
+	public static Vector3 CalculateHorizontalCoordinatesMoon(double _longitude, double _latitude, DateTime _time){
 
 		//Convert the latitude to radians
 		_latitude *= Mathf.Deg2Rad;
 
 		double lw = Mathf.Deg2Rad * _longitude * -1;
 		DateTime epoch = new DateTime(2000, 1, 1, 12, 0, 0);
-		TimeSpan j2000TS = DateTime.UtcNow - epoch;
+		TimeSpan j2000TS = _time - epoch;
 		double j2000 = j2000TS.TotalDays;
 
 		double L = Mathf.Deg2Rad * (218.316f + 13.176396f * j2000), // ecliptic longitude
@@ -61,7 +78,7 @@ public static class CelestialCoordinates{
 		b  = Mathf.Deg2Rad * 5.128f * Math.Sin(F),     // latitude
 		dt = 385001f - 20905f * Math.Cos(M);  // distance to the moon in km
 
-		//Calculate the Right ascension and declinaison of the moon
+		//Calculate the Right ascension and declination of the moon
 		double e = Mathf.Deg2Rad * 23.4397f;
 		double ra = Math.Atan2(Math.Sin(l) * Math.Cos(e) - Math.Tan(b) * Math.Sin(e), Math.Cos(l));
 		double dec = Math.Asin(Math.Sin(b) * Math.Cos(e) + Math.Cos(b) * Math.Sin(e) * Math.Sin(l));
@@ -80,7 +97,7 @@ public static class CelestialCoordinates{
 		if (Math.Sin (HA) > 0f)
 			azimuth = 360f - azimuth;
 
-		return new Vector3 ((float)altitude, (float)azimuth, (float)dt/500000f);
+		return new Vector3 ((float)altitude, (float)azimuth, (float)dt / 149597870.7f); //For dt, convert KM to AU
 	}
 
 
@@ -88,11 +105,12 @@ public static class CelestialCoordinates{
 	/// Calculate the altitude and azimuth of all planets of our solar system / including sun.
 	/// Source: http://www.abecedarical.com/javascript/script_planet_orbits.html
 	/// </summary>
-	/// <returns>The altitude azimuth (in degree) as well as the distance of where the star is located</returns>
+	/// <returns>The altitude azimuth (in degree) as well as the distance of where the star is located (in AU)</returns>
 	/// <param name="_longitude">User longitude in degree</param>
 	/// <param name="_latitude">User latitude in degree</param> 
 	/// <param name="_name">The planet's name</param> 
-	public static Vector3 CalculateHorizontalCoordinatesPlanets(double _longitude, double _latitude, string _name){
+	/// <param name="_time">The time in UTC</param>
+	public static Vector3 CalculateHorizontalCoordinatesPlanets(double _longitude, double _latitude, PlanetName _name, DateTime _time){
 
 		//Convert the latitude to radians
 		_latitude *= Mathf.Deg2Rad;
@@ -101,7 +119,7 @@ public static class CelestialCoordinates{
 
 		//1. Days elapsed since J2000 (1st january 2000 at 12:00)
 		DateTime epoch = new DateTime(2000, 1, 1, 12, 0, 0);
-		TimeSpan j2000TS = DateTime.UtcNow - epoch;
+		TimeSpan j2000TS = _time - epoch;
 		double j2000 = j2000TS.TotalDays;
 
 		//2. Centuries since J2000
@@ -124,7 +142,7 @@ public static class CelestialCoordinates{
 		double meanLongE = Mod2Pi ((100.46435f + 129597740.63f * cJ2000 / 3600.0f) * Mathf.Deg2Rad);
 
 		switch(_name){
-		case "Sun":
+		case PlanetName.SUN:
 			inclination = inclinationE;
 			longNode = longNodeE;
 			longPeri = longPeriE;
@@ -132,7 +150,7 @@ public static class CelestialCoordinates{
 			eccentricity = eccenctricityE;
 			meanLong = meanLongE;
 			break;
-		case "Mercury":
+		case PlanetName.MERCURY:
 			inclination = (7.00487f - 23.51f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longNode = (48.33167f - 446.30f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longPeri = (77.45645f + 573.57f * cJ2000 / 3600f) * Mathf.Deg2Rad;
@@ -140,7 +158,7 @@ public static class CelestialCoordinates{
 			eccentricity = 0.20563069f + 0.00002527f * cJ2000;
 			meanLong = Mod2Pi ((252.25084f + 538101628.29f * cJ2000 / 3600.0f) * Mathf.Deg2Rad);
 			break;
-		case "Venus":
+		case PlanetName.VENUS:
 			inclination = (3.39471f -   2.86f * cJ2000 / 3600.0f) * Mathf.Deg2Rad;
 			longNode = (76.68069f - 996.89f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longPeri = (131.53298f - 108.80f * cJ2000 / 3600f) * Mathf.Deg2Rad;
@@ -148,7 +166,7 @@ public static class CelestialCoordinates{
 			eccentricity = 0.00677323f - 0.00004938f * cJ2000;
 			meanLong = Mod2Pi ((181.97973f + 210664136.06f * cJ2000 / 3600f) * Mathf.Deg2Rad);
 			break;
-		case "Mars":
+		case PlanetName.MARS:
 			inclination = (1.85061f - 25.47f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longNode = (49.57854f - 1020.19f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longPeri = (336.04084f + 1560.78f * cJ2000 / 3600f) * Mathf.Deg2Rad;
@@ -156,7 +174,7 @@ public static class CelestialCoordinates{
 			eccentricity = 0.09341233f + 0.00011902f * cJ2000;
 			meanLong = Mod2Pi ((355.45332f + 68905103.78f * cJ2000 / 3600f) * Mathf.Deg2Rad);
 			break;
-		case "Jupiter":
+		case PlanetName.JUPITER:
 			inclination = (1.30530f - 4.15f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longNode = (100.55615f + 1217.17f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longPeri = (14.75385f +  839.93f * cJ2000 / 3600f) * Mathf.Deg2Rad;
@@ -164,7 +182,7 @@ public static class CelestialCoordinates{
 			eccentricity = 0.04839266f - 0.00012880f * cJ2000;
 			meanLong = Mod2Pi ((34.40438f + 10925078.35f * cJ2000 / 3600f) * Mathf.Deg2Rad);
 			break;
-		case "Saturn":
+		case PlanetName.SATURN:
 			inclination = (2.48446f + 6.11f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longNode = (113.71504f - 1591.05f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longPeri = (92.43194f - 1948.89f * cJ2000 / 3600f) * Mathf.Deg2Rad;
@@ -172,7 +190,7 @@ public static class CelestialCoordinates{
 			eccentricity = 0.05415060f - 0.00036762f * cJ2000;
 			meanLong = Mod2Pi ((49.94432f + 4401052.95f * cJ2000/3600f) * Mathf.Deg2Rad);
 			break;
-		case "Uranus":
+		case PlanetName.URANUS:
 			inclination = (0.76986f - 2.09f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longNode = (74.22988f - 1681.40f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longPeri = (170.96424f  + 1312.56f * cJ2000 / 3600f) * Mathf.Deg2Rad;
@@ -180,7 +198,7 @@ public static class CelestialCoordinates{
 			eccentricity = 0.04716771f - 0.00019150f * cJ2000;
 			meanLong = Mod2Pi ((313.23218f + 1542547.79f * cJ2000 / 3600f) * Mathf.Deg2Rad);
 			break;
-		case "Neptune":
+		case PlanetName.NEPTUNE:
 			inclination = (1.76917f - 3.64f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longNode = (131.72169f - 151.25f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longPeri = (44.97135f - 844.43f * cJ2000 / 3600f) * Mathf.Deg2Rad;
@@ -188,7 +206,7 @@ public static class CelestialCoordinates{
 			eccentricity = 0.00858587f + 0.00002510f * cJ2000;
 			meanLong = Mod2Pi ((304.88003f + 786449.21f * cJ2000 / 3600f) * Mathf.Deg2Rad);
 			break;
-		case "Pluto":
+		case PlanetName.PLUTO:
 			inclination = (17.14175f + 11.07f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longNode = (110.30347f - 37.33f * cJ2000 / 3600f) * Mathf.Deg2Rad;
 			longPeri = (224.06676f - 132.25f * cJ2000 / 3600f) * Mathf.Deg2Rad;
@@ -219,7 +237,7 @@ public static class CelestialCoordinates{
 		double zh = pPlanetOrbit * (Math.Sin (vp + longPeri - longNode) * Math.Sin (inclination));
 
 		//If Sun set the coordinates to 0
-		if (_name == "Sun") {
+		if (_name == PlanetName.SUN) {
 			xh = 0f;
 			yh = 0f;
 			zh = 0f;
@@ -242,7 +260,7 @@ public static class CelestialCoordinates{
 		double distance = Math.Sqrt(xeq * xeq + yeq * yeq + zeq * zeq);
 
 
-		//Now that we have the Right Ascension and the Declinaison of the planet, we can get the Altitude and Azimuth!
+		//Now that we have the Right Ascension and the declination of the planet, we can get the Altitude and Azimuth!
 		//compute hour angle in degrees
 		// mean sidereal time
 		double MST = 280.46061837f + 360.98564736629f * j2000 + 0.000387933f * cJ2000 * cJ2000 - cJ2000 * cJ2000 * cJ2000 / 38710000f + _longitude;
@@ -263,7 +281,6 @@ public static class CelestialCoordinates{
 		//Convert everything to radians
 		HA *= Mathf.Deg2Rad;
 		dec *= Mathf.Deg2Rad;
-		//_latitude *= Mathf.Deg2Rad;
 
 		//Compute Altitude and Azimuth (RAD)
 		double altitude = Math.Asin(Math.Sin(dec) * Math.Sin(_latitude) + Math.Cos(dec) * Math.Cos(_latitude) * Math.Cos(HA));
@@ -291,64 +308,92 @@ public static class CelestialCoordinates{
 	/// <param name="_longitude">User longitude in degree</param>
 	/// <param name="_latitude">User latitude in degree</param> 
 	/// <param name="_ra">Right Ascension (in degree)</param>
-	/// <param name="_dec">Declinaison (in degree)</param> 
-	public static Vector2 CalculateHorizontalCoordinatesStar(double _longitude, double _latitude, float _ra, float _dec){
-
-		//Convert the latitude to radians
+	/// <param name="_dec">Declination (in degree)</param> 
+	/// <param name="_time">The time in UTC</param> 
+	public static Vector2 CalculateHorizontalCoordinatesStar(double _longitude, double _latitude, double _ra, double _dec,  DateTime _time){
 		_latitude *= Mathf.Deg2Rad;
+		_ra *= 15; //RA is usually in hours (at least in HYG) so convert it to degrees
 
 		Vector2 coordinates = new Vector2 (0, 0);
 
-		//The right ascension is already in degree in database
-		//the declinaison not so convert it to degree as well
-		double ra = _ra;
-		double dec = _dec;
-
 		//1. Days elapsed since J2000 (1st january 2000 at 12:00)
 		DateTime epoch = new DateTime(2000, 1, 1, 12, 0, 0);
-		TimeSpan j2000TS = DateTime.UtcNow - epoch;
+		TimeSpan j2000TS = _time - epoch;
 		double j2000 = j2000TS.TotalDays;
 
-		//2. UT to Decimals
-		//Note: time values has to be sent from telescope
-		double curTimeUTC = DateTime.UtcNow.TimeOfDay.TotalHours;
+		//2. Centuries since J2000
+		double cJ2000 = j2000 / 36525.0f;
 
-		//3. Get Long East = + / West = -
-		double longitude = _longitude;
-		double latitude = _latitude;
+		//Mean sidereal time
+		double MST = 280.46061837f + 360.98564736629f * j2000 + 0.000387933f * cJ2000 * cJ2000 - cJ2000 * cJ2000 * cJ2000 / 38710000f + _longitude;
 
-		//4. Local Sidereal Time (LST)
-		//The sidereal time is measured by the rotation of the Earth, with respect to the stars (rather than relative to the Sun).
-		//Local sidereal time is the right ascension (RA, an equatorial coordinate) of a star on the observers meridian.
-		//In other words, he sidereal time is a direct indication of whether a celestial object of known right ascension is observable at that instant.
-		double LST = 100.46f + 0.985647f *  j2000 + longitude + curTimeUTC * 15.0f;
+		if (MST > 0.0f){
+			while (MST > 360.0f)
+				MST -= 360.0f;
+		}
+		else{
+			while (MST < 0.0f)
+				MST = MST + 360.0;
+		}
 
-		//4a. As RA and DEC are in degree, we convert this one in degrees as well
-		int modulo = (int) Math.Floor(LST) / 360;
-		LST = (LST - (360 * modulo)) / 15.0f;
+		//Compute hour angle in degrees
+		double HA = MST - _ra;
+		if (HA < 0) HA = HA + 360;
 
-		//5. Local Hour Angle
-		//If negative, add 360
-		double HA = LST - ra;
-		if (HA < 0.0f)
-			HA += 360.0f;
-		HA *= Math.PI / 12.0f;
+		//Convert everything to radians
+		HA *= Mathf.Deg2Rad;
+		_dec *= Mathf.Deg2Rad;
 
-		//7. Calculate Altitute
-		double altitude = Math.Asin(Math.Sin(dec)*Math.Sin(latitude)+Math.Cos(dec)*Math.Cos(latitude)*Math.Cos(HA));
-		double altitudeDeg = altitude * Mathf.Rad2Deg;
+		//Compute Altitude and Azimuth (RAD)
+		double altitude = Math.Asin(Math.Sin(_dec) * Math.Sin(_latitude) + Math.Cos(_dec) * Math.Cos(_latitude) * Math.Cos(HA));
+		double azimuth = Math.Acos((Math.Sin(_dec) - Math.Sin(altitude) * Math.Sin(_latitude)) / (Math.Cos(altitude)*Math.Cos(_latitude)));
 
-		//8. Calculate Azimuth
-		double azimuth = Math.Acos((Math.Sin(dec) - Math.Sin(altitude) * Math.Sin(latitude)) / (Math.Cos(altitude) * Math.Cos(latitude)));
-		double azimuthDeg = azimuth * Mathf.Rad2Deg;
+		//Convert both to degree
+		altitude *= Mathf.Rad2Deg;
+		azimuth *= Mathf.Rad2Deg;
+		
+		if (Math.Sin (HA) > 0f)
+			azimuth = 360f - azimuth;
 
-
-		if (Math.Sin(HA) > 0.0f)
-			azimuthDeg = 360.0f - azimuthDeg;
-
-		coordinates.x = (float) altitudeDeg;
-		coordinates.y = (float) azimuthDeg;
+		coordinates.x = (float) altitude;
+		coordinates.y = (float) azimuth;
 
 		return coordinates;
 	}
+
+
+	/// <summary>
+	/// Calculate the celestial sphere's rotation by time and observer's position
+	/// </summary>
+	/// <returns>The quaternion matrix</returns>
+	/// <param name="_longitude">User longitude</param>
+	/// <param name="_latitude">User latitude</param> 
+	/// <param name="_dateTime">The Time</param>
+	// public static Quaternion CalculateCelestialSphereRotation(double _longitude, double _latitude, DateTime _dateTime){
+
+	// 	//1. Days elapsed since J2000 (1st january 2000 at 12:00)
+	// 	DateTime epoch = new DateTime(2000, 1, 1, 12, 0, 0);
+	// 	TimeSpan j2000TS = _dateTime - epoch;
+	// 	double j2000 = j2000TS.TotalDays;
+
+	// 	//2. Centuries since J2000
+	// 	double cJ2000 = j2000 / 36525.0f;
+
+	// 	//Mean sidereal time
+	// 	double MST = 280.46061837f + 360.98564736629f * j2000 + 0.000387933f * cJ2000 * cJ2000 - cJ2000 * cJ2000 * cJ2000 / 38710000f + _longitude;
+
+	// 	if (MST > 0.0f){
+	// 		while (MST > 360.0f)
+	// 			MST -= 360.0f;
+	// 	}
+	// 	else{
+	// 		while (MST < 0.0f)
+	// 			MST = MST + 360.0;
+	// 	}
+
+	// 	int modulo = (int) Math.Floor(MST) / 360;
+	// 	MST = (MST - (360 * modulo));
+
+	// 	return Quaternion.Euler (-(float)_latitude, 0, (float)MST);
+	// }
 }
