@@ -21,6 +21,8 @@ For stars, it returns a Vector2 with altitude and azimuth; the distance should b
 
 For the stars, you will need its right ascension (RA) and declination (DEC). [The HYG database](https://github.com/astronexus/HYG-Database) contains the RA and DEC of almost 120'000 stars.
 
+The latitude will be positive in North / negative in South. The longitude will be positive in East and negative in West.
+
 Assuming that you want to get the coordinates of a celestial object above Beijing (Lat: 39.9 / Long: 116.4), for the current time:
 
 

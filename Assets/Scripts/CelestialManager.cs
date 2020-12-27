@@ -64,7 +64,7 @@ public class CelestialManager : MonoBehaviour
         //Update time
         DateTime pastDate = currentDate;
         currentDate = currentDate.AddHours(timeSpeedHours * Time.deltaTime);
-        dateText.text = currentDate.AddHours(8).ToString();
+        dateText.text = currentDate.AddHours(timeGMTOffset).ToString();
         
         //Update planets and moon position individually
         foreach(PlanetObject planet in planets){
@@ -81,8 +81,10 @@ public class CelestialManager : MonoBehaviour
         //It would be too expensive to rotate each stars individually like we did for the planets, instead rotate all the stars together
         //We just have to rotate our parent gameobject that contains all the stars with polaris as a pivot point
         //For rotation angle -> earth does a full rotation in 24hours so 15 degree per hour
+        //-15 if in southern hemisphere
         float ellapsedH = (float)(currentDate - pastDate).TotalHours;
-        starsParent.transform.Rotate(polaris.transform.position, 15f * ellapsedH);
+        if(latitude >= 0f) starsParent.transform.Rotate(polaris.transform.position, 15f * ellapsedH);
+        else starsParent.transform.Rotate(polaris.transform.position, -15f * ellapsedH);
         
     }
 
@@ -156,8 +158,8 @@ public class CelestialManager : MonoBehaviour
 
         stars.Add(so);
 
-        //Save polaris for later - we need to rotate our universe around it
-        if(_name == "Polaris")
+        //Save polaris (or polaris octantis for souther hemisphere) for later - we need to rotate our universe around it
+        if((_name == "Polaris" && latitude >= 0f) || (_name == "Polaris Octantis" && latitude < 0f))
             polaris = so.gameObject;
     }
 

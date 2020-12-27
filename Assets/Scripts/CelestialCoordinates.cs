@@ -259,7 +259,6 @@ public static class CelestialCoordinates{
 		double dec = Math.Atan(zeq/Math.Sqrt(xeq * xeq + yeq * yeq))*Mathf.Rad2Deg;
 		double distance = Math.Sqrt(xeq * xeq + yeq * yeq + zeq * zeq);
 
-
 		//Now that we have the Right Ascension and the declination of the planet, we can get the Altitude and Azimuth!
 		//compute hour angle in degrees
 		// mean sidereal time
@@ -360,40 +359,4 @@ public static class CelestialCoordinates{
 
 		return coordinates;
 	}
-
-
-	/// <summary>
-	/// Calculate the celestial sphere's rotation by time and observer's position
-	/// </summary>
-	/// <returns>The quaternion matrix</returns>
-	/// <param name="_longitude">User longitude</param>
-	/// <param name="_latitude">User latitude</param> 
-	/// <param name="_dateTime">The Time</param>
-	// public static Quaternion CalculateCelestialSphereRotation(double _longitude, double _latitude, DateTime _dateTime){
-
-	// 	//1. Days elapsed since J2000 (1st january 2000 at 12:00)
-	// 	DateTime epoch = new DateTime(2000, 1, 1, 12, 0, 0);
-	// 	TimeSpan j2000TS = _dateTime - epoch;
-	// 	double j2000 = j2000TS.TotalDays;
-
-	// 	//2. Centuries since J2000
-	// 	double cJ2000 = j2000 / 36525.0f;
-
-	// 	//Mean sidereal time
-	// 	double MST = 280.46061837f + 360.98564736629f * j2000 + 0.000387933f * cJ2000 * cJ2000 - cJ2000 * cJ2000 * cJ2000 / 38710000f + _longitude;
-
-	// 	if (MST > 0.0f){
-	// 		while (MST > 360.0f)
-	// 			MST -= 360.0f;
-	// 	}
-	// 	else{
-	// 		while (MST < 0.0f)
-	// 			MST = MST + 360.0;
-	// 	}
-
-	// 	int modulo = (int) Math.Floor(MST) / 360;
-	// 	MST = (MST - (360 * modulo));
-
-	// 	return Quaternion.Euler (-(float)_latitude, 0, (float)MST);
-	// }
 }
