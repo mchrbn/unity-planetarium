@@ -1,4 +1,4 @@
-# Unity Planetarium Generator
+# Unity Planetarium
 
 ![Demo 01](/img/demo_01.gif)
 
